@@ -2,8 +2,10 @@ use raytracer::scene::Scene;
 use raytracer::Config;
 use raytracer::utils::Vec3;
 use raytracer::camera::Camera;
+use raytracer::shapes::sphere::Sphere;
 
 fn main() {
+    // Config for the output image
     let config = Config {
         width: 640,
         height: 400,
@@ -11,8 +13,20 @@ fn main() {
     };
     let aspect_ratio = config.width as f32 / config.height as f32;
 
+    // Camera that will render the scene
     let camera = Camera::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, -1.0), 1.0, aspect_ratio);
 
-    let scene = Scene::new(config);
+    // Configuration of the scene to render
+    let mut scene = Scene::new(config);
+
+    scene.add_shape(Box::new(
+        Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)
+    ));
+
+    scene.add_shape(Box::new(
+        Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.2)
+    ));
+
+    // Render the scene
     scene.render(camera);
 }

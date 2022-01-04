@@ -1,6 +1,7 @@
 pub mod scene;
 pub mod camera;
 pub mod utils;
+pub mod shapes;
 mod ray;
 
 pub struct Config {
