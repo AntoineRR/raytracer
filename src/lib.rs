@@ -1,5 +1,7 @@
 pub mod scene;
-mod utils;
+pub mod camera;
+pub mod utils;
+mod ray;
 
 pub struct Config {
     pub width: u32,
