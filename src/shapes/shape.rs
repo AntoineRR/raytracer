@@ -13,9 +13,9 @@ pub struct HitRecord {
 
 /// Abstraction dedicated to building a shape. Allows to construct a shape providing only the struct instance
 /// implementing the `Collide` trait.
-/// 
+///
 /// # Example
-/// 
+///
 /// ```
 /// let shape = ShapeBuilder::new(Box::new(
 ///     Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)

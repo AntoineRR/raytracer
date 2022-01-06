@@ -1,5 +1,5 @@
-use crate::utils::Vec3;
 use crate::ray::Ray;
+use crate::utils::Vec3;
 
 pub struct Viewport {
     width: f32,
@@ -25,8 +25,8 @@ impl Camera {
             position,
             direction,
             focal_len,
-            near_clip_plane: 0.1*focal_len,
-            far_clip_plane: 5.0*focal_len,
+            near_clip_plane: 0.1 * focal_len,
+            far_clip_plane: 5.0 * focal_len,
             viewport,
         }
     }
@@ -57,8 +57,8 @@ impl Camera {
 
     fn lower_left_corner(&self) -> Vec3 {
         Vec3 {
-            x: self.position.x - self.viewport.width/2.0,
-            y: self.position.y - self.viewport.height/2.0,
+            x: self.position.x - self.viewport.width / 2.0,
+            y: self.position.y - self.viewport.height / 2.0,
             z: self.position.z - self.focal_len,
         }
     }
@@ -67,10 +67,11 @@ impl Camera {
         // for now, consider that the direction is (0,0,-1)
         let corner = self.lower_left_corner();
         let direction = Vec3::new(
-            corner.x + u*self.viewport.width - self.position.x,
-            corner.y + v*self.viewport.height - self.position.y,
+            corner.x + u * self.viewport.width - self.position.x,
+            corner.y + v * self.viewport.height - self.position.y,
             corner.z - self.position.z,
-        ).normalize(); 
+        )
+        .normalize();
         Ray::new(self.position, direction)
     }
 }
