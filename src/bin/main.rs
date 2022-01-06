@@ -3,6 +3,7 @@ use raytracer::Config;
 use raytracer::utils::Vec3;
 use raytracer::camera::Camera;
 use raytracer::shapes::sphere::Sphere;
+use raytracer::shapes::shape::*;
 
 fn main() {
     // Config for the output image
@@ -19,13 +20,17 @@ fn main() {
     // Configuration of the scene to render
     let mut scene = Scene::new(config);
 
-    scene.add_shape(Box::new(
-        Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)
-    ));
+    scene.add_shape(
+        ShapeBuilder::new(Box::new(
+            Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)
+        )).to_shape()
+    );
 
-    scene.add_shape(Box::new(
-        Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.2)
-    ));
+    scene.add_shape(
+        ShapeBuilder::new(Box::new(
+            Sphere::new(Vec3::new(1.0, 0.0, -2.0), 0.5)
+        )).to_shape()
+    );
 
     // Render the scene
     scene.render(camera);
