@@ -3,7 +3,7 @@ use raytracer::scene::Scene;
 use raytracer::shapes::shape::*;
 use raytracer::shapes::sphere::Sphere;
 use raytracer::utils::Vec3;
-use raytracer::{AntiAliasing, Config};
+use raytracer::Config;
 
 fn main() {
     // Config for the output image
@@ -11,7 +11,9 @@ fn main() {
         width: 640,
         height: 400,
         output_path: String::from("images/test.png"),
-        anti_aliasing: AntiAliasing::Rays25,
+        anti_aliasing: Some(5),
+        max_ray_bounce: 20,
+        gamma_correction: 1.0,
     };
     let aspect_ratio = config.width as f32 / config.height as f32;
 
@@ -31,7 +33,7 @@ fn main() {
     );
 
     scene.add_shape(
-        ShapeBuilder::new(Box::new(Sphere::new(Vec3::new(1.0, 0.0, -2.0), 0.5))).to_shape(),
+        ShapeBuilder::new(Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0))).to_shape(),
     );
 
     // Render the scene

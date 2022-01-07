@@ -169,8 +169,12 @@ impl Color {
         Color { r, g, b }
     }
 
-    pub fn convert(&self) -> image::Rgb<u8> {
-        image::Rgb([self.r, self.g, self.b])
+    pub fn convert(&self, gamma_correction: f32) -> image::Rgb<u8> {
+        image::Rgb([
+            (self.r as f32).powf(1.0 / gamma_correction) as u8,
+            (self.g as f32).powf(1.0 / gamma_correction) as u8,
+            (self.b as f32).powf(1.0 / gamma_correction) as u8
+        ])
     }
 }
 

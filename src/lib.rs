@@ -1,4 +1,5 @@
 pub mod camera;
+pub mod material;
 mod ray;
 pub mod scene;
 pub mod shapes;
@@ -8,14 +9,7 @@ pub struct Config {
     pub width: u32,
     pub height: u32,
     pub output_path: String,
-    pub anti_aliasing: AntiAliasing,
-}
-
-#[repr(u8)]
-#[derive(Clone, Copy)]
-pub enum AntiAliasing {
-    Rays4 = 4,
-    Rays9 = 9,
-    Rays16 = 16,
-    Rays25 = 25,
+    pub anti_aliasing: Option<u32>,
+    pub max_ray_bounce: u32,
+    pub gamma_correction: f32,
 }

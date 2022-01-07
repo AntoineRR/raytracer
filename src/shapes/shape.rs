@@ -1,5 +1,6 @@
+use crate::material::{Diffuse, Material};
 use crate::ray::Ray;
-use crate::utils::Vec3;
+use crate::utils::{Color, Vec3};
 
 pub trait Collide {
     fn get_intersection(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
@@ -27,7 +28,8 @@ pub struct HitRecord {
 pub struct ShapeBuilder {
     position: Vec3,
     rotation: Vec3,
-    pub object: Box<dyn Collide>,
+    object: Box<dyn Collide>,
+    material: Box<dyn Material>,
 }
 
 impl ShapeBuilder {
@@ -36,6 +38,7 @@ impl ShapeBuilder {
             position: Vec3::new(0.0, 0.0, 0.0),
             rotation: Vec3::new(0.0, 0.0, 0.0),
             object,
+            material: Box::new(Diffuse::new(Color::new(150, 150, 150))),
         }
     }
 
@@ -49,11 +52,17 @@ impl ShapeBuilder {
         self
     }
 
+    pub fn set_material(mut self, material: Box<dyn Material>) -> Self {
+        self.material = material;
+        self
+    }
+
     pub fn to_shape(self) -> Shape {
         Shape {
             position: self.position,
             rotation: self.rotation,
             object: self.object,
+            material: self.material,
         }
     }
 }
@@ -62,14 +71,21 @@ pub struct Shape {
     position: Vec3,
     rotation: Vec3,
     pub object: Box<dyn Collide>,
+    pub material: Box<dyn Material>,
 }
 
 impl Shape {
-    pub fn new(position: Vec3, rotation: Vec3, object: Box<dyn Collide>) -> Self {
+    pub fn new(
+        position: Vec3,
+        rotation: Vec3,
+        object: Box<dyn Collide>,
+        material: Box<dyn Material>,
+    ) -> Self {
         Shape {
             position,
             rotation,
             object,
+            material,
         }
     }
 }
