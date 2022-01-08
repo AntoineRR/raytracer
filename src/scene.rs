@@ -47,8 +47,8 @@ impl Scene {
         }
         // If we found a shape intersecting with the ray render the shape
         if let (Some(hit), Some(s)) = (min_hit_record, hit_shape) {
-            let bouncing_ray = s.material.scatter(hit);
-            self.get_ray_color(camera, &bouncing_ray, depth - 1) * 0.5
+            let bouncing_ray = s.material.scatter(ray, hit);
+            s.material.get_attenuation() * self.get_ray_color(camera, &bouncing_ray, depth - 1)
         // Else we render the skybox
         } else {
             let t = 0.5 * (ray.direction.y + 1.0);

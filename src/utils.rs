@@ -1,6 +1,6 @@
 use std::ops;
 
-#[derive(Clone, Copy, Default, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
@@ -114,6 +114,7 @@ impl Vec3 {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
 pub struct Color {
     pub r: u8,
     pub g: u8,
@@ -160,6 +161,28 @@ impl ops::MulAssign<f32> for Color {
             r: (self.r as f32 * rhs) as u8,
             g: (self.g as f32 * rhs) as u8,
             b: (self.b as f32 * rhs) as u8,
+        }
+    }
+}
+
+impl ops::Mul for Color {
+    type Output = Self;
+
+    fn mul(self, rhs: Color) -> Self {
+        Self {
+            r: (self.r as f32 * (rhs.r as f32 / 255.0)) as u8,
+            g: (self.g as f32 * (rhs.g as f32 / 255.0)) as u8,
+            b: (self.b as f32 * (rhs.b as f32 / 255.0)) as u8,
+        }
+    }
+}
+
+impl ops::MulAssign for Color {
+    fn mul_assign(&mut self, rhs: Self) {
+        *self = Self {
+            r: (self.r as f32 * (rhs.r as f32 / 255.0)) as u8,
+            g: (self.g as f32 * (rhs.g as f32 / 255.0)) as u8,
+            b: (self.b as f32 * (rhs.b as f32 / 255.0)) as u8,
         }
     }
 }
