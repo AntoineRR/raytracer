@@ -88,7 +88,9 @@ impl Scene {
         // temp
         let mut buffer = ImageBuffer::new(self.config.width, self.config.height);
         for (x, y, pixel) in buffer.enumerate_pixels_mut() {
-            *pixel = self.get_pixel_color(&camera, x, y).convert(self.config.gamma_correction);
+            *pixel = self
+                .get_pixel_color(&camera, x, y)
+                .convert(self.config.gamma_correction);
         }
         buffer.save(&self.config.output_path).unwrap();
     }

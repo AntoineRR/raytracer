@@ -10,6 +10,23 @@ pub struct HitRecord {
     pub point: Vec3,
     pub normal: Vec3,
     pub t: f32,
+    pub front_face: bool,
+}
+
+impl HitRecord {
+    pub fn new(point: Vec3, outward_normal: Vec3, t: f32, front_face: bool) -> Self {
+        let normal = if front_face {
+            outward_normal
+        } else {
+            -outward_normal
+        };
+        HitRecord {
+            point,
+            normal,
+            t,
+            front_face,
+        }
+    }
 }
 
 /// Abstraction dedicated to building a shape. Allows to construct a shape providing only the struct instance

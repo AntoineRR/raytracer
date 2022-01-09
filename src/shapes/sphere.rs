@@ -39,7 +39,8 @@ impl Collide for Sphere {
 
         // Return a HitRecord if a valid t was found
         let point = ray.at(t);
-        let normal = (point - self.center).normalize();
-        Some(HitRecord { point, normal, t })
+        let outward_normal = (point - self.center).normalize();
+        let front_face = dot(&ray.direction, &outward_normal) < 0.0;
+        Some(HitRecord::new(point, outward_normal, t, front_face))
     }
 }

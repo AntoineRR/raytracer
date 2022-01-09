@@ -1,9 +1,9 @@
 use raytracer::camera::Camera;
-use raytracer::material::{Diffuse, Metal};
+use raytracer::material::{Dielectric, Diffuse, Metal};
 use raytracer::scene::Scene;
 use raytracer::shapes::shape::*;
 use raytracer::shapes::sphere::Sphere;
-use raytracer::utils::{Vec3, Color};
+use raytracer::utils::{Color, Vec3};
 use raytracer::Config;
 
 fn main() {
@@ -49,7 +49,7 @@ fn main() {
 
     scene.add_shape(
         ShapeBuilder::new(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5)))
-            .set_material(Box::new(Metal::new(Color::new(255, 200, 200), 1.0)))
+            .set_material(Box::new(Dielectric::new(Color::new(255, 200, 200), 1.5)))
             .to_shape(),
     );
 

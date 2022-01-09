@@ -7,6 +7,18 @@ pub struct Vec3 {
     pub z: f32,
 }
 
+impl ops::Neg for Vec3 {
+    type Output = Self;
+
+    fn neg(self) -> Self {
+        Self {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        }
+    }
+}
+
 impl ops::Add for Vec3 {
     type Output = Self;
 
@@ -69,6 +81,28 @@ impl ops::DivAssign<f32> for Vec3 {
             x: self.x / rhs,
             y: self.y / rhs,
             z: self.z / rhs,
+        }
+    }
+}
+
+impl ops::Mul<Vec3> for Vec3 {
+    type Output = Self;
+
+    fn mul(self, rhs: Vec3) -> Self {
+        Self {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+            z: self.z * rhs.z,
+        }
+    }
+}
+
+impl ops::MulAssign<Vec3> for Vec3 {
+    fn mul_assign(&mut self, rhs: Vec3) {
+        *self = Self {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+            z: self.z * rhs.z,
         }
     }
 }
@@ -196,7 +230,7 @@ impl Color {
         image::Rgb([
             (self.r as f32).powf(1.0 / gamma_correction) as u8,
             (self.g as f32).powf(1.0 / gamma_correction) as u8,
-            (self.b as f32).powf(1.0 / gamma_correction) as u8
+            (self.b as f32).powf(1.0 / gamma_correction) as u8,
         ])
     }
 }
