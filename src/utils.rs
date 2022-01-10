@@ -148,6 +148,36 @@ impl Vec3 {
     }
 }
 
+pub struct Base {
+    u: Vec3,
+    v: Vec3,
+    w: Vec3,
+}
+
+impl Base {
+    pub fn new(u: Vec3, v: Vec3) -> Self {
+        let u = u.normalize();
+        let v = v.normalize();
+        if dot(&u, &v) > 0.0001 {
+            panic!("u and v should be perpendicular to create an orthonormal Base");
+        }
+        let w = cross(&u, &v);
+        Base { u, v, w }
+    }
+
+    pub fn u(&self) -> Vec3 {
+        self.u
+    }
+
+    pub fn v(&self) -> Vec3 {
+        self.v
+    }
+
+    pub fn w(&self) -> Vec3 {
+        self.w
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct Color {
     pub r: u8,

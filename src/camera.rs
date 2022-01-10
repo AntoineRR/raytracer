@@ -1,14 +1,16 @@
 use crate::ray::Ray;
-use crate::utils::Vec3;
+use crate::utils::{cross, Base, Vec3};
 
 pub struct Viewport {
     width: f32,
     height: f32,
+    aspect_ratio: f32,
+    lower_left_corner: Vec3,
 }
 
 pub struct Camera {
     position: Vec3,
-    direction: Vec3,
+    base: Base,
     focal_len: f32,
     near_clip_plane: f32,
     far_clip_plane: f32,
@@ -16,19 +18,42 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new(position: Vec3, direction: Vec3, focal_len: f32, aspect_ratio: f32) -> Self {
+    pub fn new(position: Vec3, direction: Vec3, view_up: Vec3, aspect_ratio: f32) -> Self {
+        let w = -direction.normalize();
+        let u = cross(&view_up, &w).normalize();
+        let v = cross(&w, &u);
+
+        let width = 2.0 * aspect_ratio;
+        let height = 2.0;
+        let lower_left_corner = position - (u * width) / 2.0 - (v * height) / 2.0 - w;
+
         let viewport = Viewport {
-            width: 2.0 * aspect_ratio,
-            height: 2.0,
+            width,
+            height,
+            aspect_ratio,
+            lower_left_corner,
         };
+
         Camera {
             position,
-            direction,
-            focal_len,
-            near_clip_plane: 0.1 * focal_len,
-            far_clip_plane: 5.0 * focal_len,
+            base: Base::new(u, v),
+            focal_len: 1.0,
+            near_clip_plane: 0.1,
+            far_clip_plane: 5.0,
             viewport,
         }
+    }
+
+    pub fn get_focal_len(&self) -> f32 {
+        self.focal_len
+    }
+
+    pub fn set_focal_len(mut self, focal_len: f32) -> Self {
+        if self.focal_len < self.near_clip_plane || self.focal_len > self.far_clip_plane {
+            panic!("Tried to set a focal len that is outside of the camera frustum");
+        }
+        self.focal_len = focal_len;
+        self
     }
 
     pub fn get_near_clip_plane(&self) -> f32 {
@@ -55,23 +80,23 @@ impl Camera {
         self
     }
 
-    fn lower_left_corner(&self) -> Vec3 {
-        Vec3 {
-            x: self.position.x - self.viewport.width / 2.0,
-            y: self.position.y - self.viewport.height / 2.0,
-            z: self.position.z - self.focal_len,
-        }
+    pub fn set_vertical_fov(mut self, v_fov: f32) -> Self {
+        let h = (v_fov.to_radians() / 2.0).tan();
+        self.viewport.height = 2.0 * h;
+        self.viewport.width = self.viewport.aspect_ratio * self.viewport.height;
+        self.viewport.lower_left_corner = self.position
+            - (self.base.u() * self.viewport.width) / 2.0
+            - (self.base.v() * self.viewport.height) / 2.0
+            - self.base.w();
+        self
     }
 
     pub fn get_ray(&self, u: f32, v: f32) -> Ray {
-        // for now, consider that the direction is (0,0,-1)
-        let corner = self.lower_left_corner();
-        let direction = Vec3::new(
-            corner.x + u * self.viewport.width - self.position.x,
-            corner.y + v * self.viewport.height - self.position.y,
-            corner.z - self.position.z,
-        )
-        .normalize();
+        let direction = (self.viewport.lower_left_corner
+            + self.base.u() * self.viewport.width * u
+            + self.base.v() * self.viewport.height * v
+            - self.position)
+            .normalize();
         Ray::new(self.position, direction)
     }
 }

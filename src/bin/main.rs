@@ -20,11 +20,12 @@ fn main() {
 
     // Camera that will render the scene
     let camera = Camera::new(
-        Vec3::new(0.0, 0.0, 0.0),
-        Vec3::new(0.0, 0.0, -1.0),
-        1.0,
+        Vec3::new(-2.0, 2.0, 1.0),
+        Vec3::new(2.0, -2.0, -2.0),
+        Vec3::new(0.0, 1.0, 0.0),
         aspect_ratio,
-    );
+    )
+    .set_vertical_fov(20.0);
 
     // Configuration of the scene to render
     let mut scene = Scene::new(config);

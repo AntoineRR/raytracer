@@ -3,7 +3,6 @@ use crate::ray::Ray;
 use crate::shapes::shape::HitRecord;
 use crate::shapes::shape::Shape;
 use crate::utils::Color;
-use crate::utils::Vec3;
 use crate::Config;
 use image::ImageBuffer;
 
