@@ -3,12 +3,14 @@ use crate::shapes::shape::Collide;
 use crate::shapes::shape::HitRecord;
 use crate::utils::{dot, Vec3};
 
+/// A simple Sphere to wrap in the Shape struct for rendering in a Scene.
 pub struct Sphere {
     center: Vec3,
     radius: f32,
 }
 
 impl Sphere {
+    /// Creates a new Sphere
     pub fn new(center: Vec3, radius: f32) -> Self {
         Sphere { center, radius }
     }

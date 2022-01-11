@@ -8,10 +8,14 @@ use crate::{
 };
 
 pub trait Material {
+    /// Returns a ray that was scattered byt the material, based on the incident ray and the informations about the hit with the object.
     fn scatter(&self, ray: &Ray, hit_record: HitRecord) -> Ray;
+
+    /// Returns the attenuation that the scattered ray went through. This is the albedo color of the material.
     fn get_attenuation(&self) -> Color;
 }
 
+/// A pure diffuse Material.
 pub struct Diffuse {
     color: Color,
 }
@@ -29,11 +33,13 @@ impl Material for Diffuse {
 }
 
 impl Diffuse {
+    /// Creates a new diffuse material.
     pub fn new(color: Color) -> Self {
         Diffuse { color }
     }
 }
 
+/// A pure reflective Material.
 pub struct Metal {
     color: Color,
     fuzziness: f32,
@@ -54,11 +60,13 @@ impl Material for Metal {
 }
 
 impl Metal {
+    /// Creates a new metal material.
     pub fn new(color: Color, fuzziness: f32) -> Self {
         Metal { color, fuzziness }
     }
 }
 
+/// A pure glass Material.
 pub struct Dielectric {
     color: Color,
     refraction: f32,
@@ -94,6 +102,7 @@ impl Material for Dielectric {
 }
 
 impl Dielectric {
+    /// Creates a new dielectric material.
     pub fn new(color: Color, refraction: f32) -> Self {
         Dielectric { color, refraction }
     }

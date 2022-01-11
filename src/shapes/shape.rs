@@ -50,6 +50,7 @@ pub struct ShapeBuilder {
 }
 
 impl ShapeBuilder {
+    /// Creates a new ShapeBuilder
     pub fn new(object: Box<dyn Collide>) -> Self {
         ShapeBuilder {
             position: Vec3::new(0.0, 0.0, 0.0),
@@ -59,21 +60,25 @@ impl ShapeBuilder {
         }
     }
 
+    /// Set the position of the ShapeBuilder
     pub fn set_position(mut self, position: Vec3) -> Self {
         self.position = position;
         self
     }
 
+    /// Set the rotation of the ShapeBuilder
     pub fn set_rotation(mut self, rotation: Vec3) -> Self {
         self.rotation = rotation;
         self
     }
 
+    /// Set the material of the ShapeBuilder
     pub fn set_material(mut self, material: Box<dyn Material>) -> Self {
         self.material = material;
         self
     }
 
+    /// Converts the ShapeBuilder into a usable Shape
     pub fn to_shape(self) -> Shape {
         Shape {
             position: self.position,
@@ -84,6 +89,8 @@ impl ShapeBuilder {
     }
 }
 
+/// A shape to add to a Scene for rendering.
+/// Use the ShapeBuilder struct to generate Shapes more easily and with default values for some fields.
 pub struct Shape {
     position: Vec3,
     rotation: Vec3,
@@ -92,6 +99,7 @@ pub struct Shape {
 }
 
 impl Shape {
+    /// Creates a new Shape
     pub fn new(
         position: Vec3,
         rotation: Vec3,

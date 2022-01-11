@@ -6,12 +6,47 @@ use crate::utils::Color;
 use crate::Config;
 use image::ImageBuffer;
 
+/// The scene that should be rendered.
+///
+/// # Example
+/// ```
+/// // Configuration of the scene to render
+/// let mut scene = Scene::new(config);
+///
+/// scene.add_shape(
+///     ShapeBuilder::new(Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0)))
+///         .set_material(Box::new(Diffuse::new(Color::new(5, 206, 89))))
+///         .to_shape(),
+/// );
+///
+/// scene.add_shape(
+///     ShapeBuilder::new(Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)))
+///         .set_material(Box::new(Diffuse::new(Color::new(189, 23, 76))))
+///         .to_shape(),
+/// );
+///
+/// scene.add_shape(
+///     ShapeBuilder::new(Box::new(Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.5)))
+///         .set_material(Box::new(Metal::new(Color::new(200, 200, 200), 0.3)))
+///         .to_shape(),
+/// );
+///
+/// scene.add_shape(
+///     ShapeBuilder::new(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5)))
+///         .set_material(Box::new(Dielectric::new(Color::new(255, 200, 200), 1.5)))
+///         .to_shape(),
+/// );
+///
+/// // Render the scene
+/// scene.render(camera);
+/// ```
 pub struct Scene {
     config: Config,
     shapes: Vec<Shape>,
 }
 
 impl Scene {
+    /// Creates a new Scene
     pub fn new(config: Config) -> Self {
         Scene {
             config,
@@ -19,6 +54,7 @@ impl Scene {
         }
     }
 
+    /// Adds the shape to the scene
     pub fn add_shape(&mut self, shape: Shape) {
         self.shapes.push(shape);
     }
@@ -83,8 +119,9 @@ impl Scene {
         )
     }
 
+    /// Renders the Scene as seen from the Camera given as a parameter.
+    /// The produced image will be saved in a file at the location specified in the Config used to create the Scene.
     pub fn render(&self, camera: Camera) {
-        // temp
         let mut buffer = ImageBuffer::new(self.config.width, self.config.height);
         for (x, y, pixel) in buffer.enumerate_pixels_mut() {
             *pixel = self
