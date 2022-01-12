@@ -5,6 +5,8 @@ use crate::shapes::shape::Shape;
 use crate::utils::Color;
 use crate::Config;
 use image::ImageBuffer;
+use indicatif::HumanDuration;
+use indicatif::ProgressBar;
 
 /// The scene that should be rendered.
 ///
@@ -123,11 +125,17 @@ impl Scene {
     /// The produced image will be saved in a file at the location specified in the Config used to create the Scene.
     pub fn render(&self, camera: Camera) {
         let mut buffer = ImageBuffer::new(self.config.width, self.config.height);
+        let n = self.config.width as u64 * self.config.height as u64;
+        let bar = ProgressBar::new(n);
+        bar.set_draw_rate(10);
         for (x, y, pixel) in buffer.enumerate_pixels_mut() {
             *pixel = self
                 .get_pixel_color(&camera, x, y)
                 .convert(self.config.gamma_correction);
+            bar.inc(1);
         }
         buffer.save(&self.config.output_path).unwrap();
+        bar.finish();
+        println!("Took: {}", HumanDuration(bar.elapsed()).to_string());
     }
 }
