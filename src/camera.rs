@@ -1,3 +1,5 @@
+use rand_distr::{Distribution, UnitDisc};
+
 use crate::ray::Ray;
 use crate::utils::{cross, Base, Vec3};
 
@@ -25,7 +27,8 @@ struct Viewport {
 pub struct Camera {
     position: Vec3,
     base: Base,
-    focal_len: f32,
+    focus: f32,
+    len_radius: f32,
     near_clip_plane: f32,
     far_clip_plane: f32,
     viewport: Viewport,
@@ -55,27 +58,47 @@ impl Camera {
         Camera {
             position,
             base: Base::new(u, v),
-            focal_len: 1.0,
+            focus: 1.0,
+            len_radius: 0.0,
             near_clip_plane: 0.1,
             far_clip_plane: 5.0,
             viewport,
         }
     }
 
-    /// Returns the focal length of the Camera
-    pub fn get_focal_len(&self) -> f32 {
-        self.focal_len
+    /// Returns the focus distance of the Camera
+    pub fn get_focus(&self) -> f32 {
+        self.focus
     }
 
-    /// Set a new focal length for the Camera
+    /// Set a new focus distance for the Camera
     ///
     /// # Panics
-    /// Panics if the new focal length is not between the near clip plane and far clip plane value of the Camera.
-    pub fn set_focal_len(mut self, focal_len: f32) -> Self {
-        if self.focal_len < self.near_clip_plane || self.focal_len > self.far_clip_plane {
-            panic!("Tried to set a focal len that is outside of the camera frustum");
+    /// Panics if the new focus distance is not between the near clip plane and far clip plane value of the Camera.
+    pub fn set_focus(mut self, focus: f32) -> Self {
+        if self.focus < self.near_clip_plane || self.focus > self.far_clip_plane {
+            panic!("Tried to set a focus distance that is outside of the camera frustum");
         }
-        self.focal_len = focal_len;
+        self.focus = focus;
+        self.set_lower_left_corner();
+        self
+    }
+
+    /// Returns the len radius of the Camera
+    pub fn get_len_radius(&self) -> f32 {
+        self.len_radius
+    }
+
+    /// Set a new len radius for the Camera.
+    /// The greater the len radius is, the more visible the depth of field effect will be. Set to zero for no depth of field effect.
+    ///
+    /// # Panics
+    /// Panics if a negative value is given for the len radius.
+    pub fn set_len_radius(mut self, len_radius: f32) -> Self {
+        if self.len_radius < 0.0 {
+            panic!("Tried to set a negative len radius for the Camera");
+        }
+        self.len_radius = len_radius;
         self
     }
 
@@ -87,10 +110,10 @@ impl Camera {
     /// Set a new near clip plane value for the Camera
     ///
     /// # Panics
-    /// Panics if the new near clip plane value is greater than the focal length of the Camera
+    /// Panics if the new near clip plane value is greater than the focus distance of the Camera
     pub fn set_near_clip_plane(mut self, near_clip_plane: f32) -> Self {
-        if near_clip_plane > self.focal_len {
-            panic!("Tried to set the near clip plane to a value greater than the focal length of the Camera");
+        if near_clip_plane > self.focus {
+            panic!("Tried to set the near clip plane to a value greater than the focus distance of the Camera");
         }
         self.near_clip_plane = near_clip_plane;
         self
@@ -104,10 +127,10 @@ impl Camera {
     /// Set a new far clip plane value for the Camera
     ///
     /// # Panics
-    /// Panics if the new far clip plane value is smaller than the focal length of the Camera
+    /// Panics if the new far clip plane value is smaller than the focus distance of the Camera
     pub fn set_far_clip_plane(mut self, far_clip_plane: f32) -> Self {
-        if far_clip_plane < self.focal_len {
-            panic!("Tried to set the far clip plane to a value smaller than the focal length of the Camera");
+        if far_clip_plane < self.focus {
+            panic!("Tried to set the far clip plane to a value smaller than the focus distance of the Camera");
         }
         self.far_clip_plane = far_clip_plane;
         self
@@ -118,19 +141,27 @@ impl Camera {
         let h = (v_fov.to_radians() / 2.0).tan();
         self.viewport.height = 2.0 * h;
         self.viewport.width = self.viewport.aspect_ratio * self.viewport.height;
-        self.viewport.lower_left_corner = self.position
-            - (self.base.u() * self.viewport.width) / 2.0
-            - (self.base.v() * self.viewport.height) / 2.0
-            - self.base.w();
+        self.set_lower_left_corner();
         self
     }
 
     pub fn get_ray(&self, u: f32, v: f32) -> Ray {
+        let r: [f32; 2] = UnitDisc.sample(&mut rand::thread_rng());
+        let offset = (self.base.u() * r[0] + self.base.v() * r[1]) * self.len_radius;
+        let origin = self.position + offset;
         let direction = (self.viewport.lower_left_corner
-            + self.base.u() * self.viewport.width * u
-            + self.base.v() * self.viewport.height * v
-            - self.position)
+            + self.base.u() * self.viewport.width * self.focus * u
+            + self.base.v() * self.viewport.height * self.focus * v
+            - self.position
+            - offset)
             .normalize();
-        Ray::new(self.position, direction)
+        Ray::new(origin, direction)
+    }
+
+    fn set_lower_left_corner(&mut self) {
+        self.viewport.lower_left_corner = self.position
+            - (self.base.u() * self.viewport.width * self.focus) / 2.0
+            - (self.base.v() * self.viewport.height * self.focus) / 2.0
+            - self.base.w() * self.focus;
     }
 }
