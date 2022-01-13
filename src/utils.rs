@@ -1,5 +1,7 @@
 use std::ops;
 
+use rand::Rng;
+
 #[derive(Clone, Copy, Debug)]
 pub struct Vec3 {
     pub x: f32,
@@ -254,6 +256,14 @@ impl ops::MulAssign for Color {
 impl Color {
     pub fn new(r: u8, g: u8, b: u8) -> Self {
         Color { r, g, b }
+    }
+
+    pub fn random() -> Self {
+        Color {
+            r: rand::thread_rng().gen_range(0..=255),
+            g: rand::thread_rng().gen_range(0..=255),
+            b: rand::thread_rng().gen_range(0..=255),
+        }
     }
 
     pub fn convert(&self, gamma_correction: f32) -> image::Rgb<u8> {

@@ -61,7 +61,7 @@ impl Camera {
             focus: 1.0,
             len_radius: 0.0,
             near_clip_plane: 0.1,
-            far_clip_plane: 5.0,
+            far_clip_plane: 100.0,
             viewport,
         }
     }

@@ -97,7 +97,7 @@ impl Scene {
     pub fn get_pixel_color(&self, camera: &Camera, x: u32, y: u32) -> Color {
         if self.config.anti_aliasing.is_none() {
             let u = x as f32 / (self.config.width as f32 - 1.0);
-            let v = (self.config.height as f32 - y as f32) / (self.config.height as f32 - 1.0); // y axis goes up
+            let v = (self.config.height as f32 - y as f32) / (self.config.height as f32); // y axis goes up
             return self.get_ray_color(&camera, &camera.get_ray(u, v), self.config.max_ray_bounce);
         }
         let n_samples_root = self.config.anti_aliasing.unwrap();
@@ -107,7 +107,7 @@ impl Scene {
                 let x = x as f32 + offset_u as f32 / (n_samples_root - 1) as f32;
                 let y = y as f32 + offset_v as f32 / (n_samples_root - 1) as f32;
                 let u = x as f32 / (self.config.width as f32 - 1.0);
-                let v = (self.config.height as f32 - y) / (self.config.height as f32 - 1.0); // y axis goes up
+                let v = (self.config.height as f32 - y) / (self.config.height as f32); // y axis goes up
                 let ray = camera.get_ray(u, v);
                 let color = self.get_ray_color(&camera, &ray, self.config.max_ray_bounce);
                 color_sum.0 += color.r as u32;

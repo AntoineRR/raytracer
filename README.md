@@ -15,6 +15,6 @@ Check the `src/bin/main.rs` file for an example scene to render.
 
 ## Render examples
 
+![Big scene](/examples/big_scene.png?raw=true "Big")
 ![Front view](/examples/front_view.png?raw=true "Front")
 ![Close up](/examples/close_up.png?raw=true "Close")
-![Wide view](/examples/wide_view.png?raw=true "Wide")
