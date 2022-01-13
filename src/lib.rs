@@ -1,3 +1,10 @@
+use std::sync::{Mutex, Arc};
+
+use camera::Camera;
+use image::ImageBuffer;
+use indicatif::{ProgressBar, HumanDuration};
+use scene::Scene;
+
 pub mod camera;
 pub mod material;
 mod ray;
@@ -31,4 +38,47 @@ pub struct Config {
     pub anti_aliasing: Option<u32>,
     pub max_ray_bounce: u32,
     pub gamma_correction: f32,
+}
+
+pub fn render(scene: Scene, camera: Camera) {
+    println!("Rendering scene...");
+    let bar = ProgressBar::new(scene.get_config().width as u64 * scene.get_config().height as u64);
+    let bar = Arc::new(bar);
+    bar.set_draw_rate(10);
+
+    let buffer: ImageBuffer<image::Rgb<u8>, _> = ImageBuffer::new(scene.get_config().width, scene.get_config().height);
+    let buffer = Arc::new(Mutex::new(buffer));
+    let thread_pool = threadpool::ThreadPool::new(100);
+
+    let gamma_correction = scene.get_config().gamma_correction;
+    let camera = Arc::new(camera);
+    let scene = Arc::new(scene);
+
+    let width = buffer.lock().unwrap().width();
+    let height = buffer.lock().unwrap().height();
+
+    for x in 0..width {
+        for y in 0..height {
+            let camera_clone = camera.clone();
+            let buffer_clone = buffer.clone();
+            let scene_clone = scene.clone();
+            let bar_clone = bar.clone();
+            
+            thread_pool.execute(move || {
+                let color = scene_clone
+                    .get_pixel_color(&camera_clone, x as u32, y as u32)
+                    .convert(gamma_correction);
+                *buffer_clone.lock().unwrap().get_pixel_mut(x, y) = color;
+                bar_clone.inc(1);
+            });
+        }
+    }
+    thread_pool.join();
+
+    bar.finish();
+    println!("Took: {}", HumanDuration(bar.elapsed()).to_string());
+
+    println!("Saving image...");
+    buffer.lock().unwrap().save(&scene.get_config().output_path).unwrap();
+    println!("Done");
 }

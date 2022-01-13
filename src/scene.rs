@@ -4,9 +4,6 @@ use crate::shapes::shape::HitRecord;
 use crate::shapes::shape::Shape;
 use crate::utils::Color;
 use crate::Config;
-use image::ImageBuffer;
-use indicatif::HumanDuration;
-use indicatif::ProgressBar;
 
 /// The scene that should be rendered.
 ///
@@ -56,6 +53,10 @@ impl Scene {
         }
     }
 
+    pub fn get_config(&self) -> &Config {
+        &self.config
+    }
+
     /// Adds the shape to the scene
     pub fn add_shape(&mut self, shape: Shape) {
         self.shapes.push(shape);
@@ -93,7 +94,7 @@ impl Scene {
         }
     }
 
-    fn get_pixel_color(&self, camera: &Camera, x: u32, y: u32) -> Color {
+    pub fn get_pixel_color(&self, camera: &Camera, x: u32, y: u32) -> Color {
         if self.config.anti_aliasing.is_none() {
             let u = x as f32 / (self.config.width as f32 - 1.0);
             let v = (self.config.height as f32 - y as f32) / (self.config.height as f32 - 1.0); // y axis goes up
@@ -119,23 +120,5 @@ impl Scene {
             (color_sum.1 / (n_samples_root * n_samples_root)) as u8,
             (color_sum.2 / (n_samples_root * n_samples_root)) as u8,
         )
-    }
-
-    /// Renders the Scene as seen from the Camera given as a parameter.
-    /// The produced image will be saved in a file at the location specified in the Config used to create the Scene.
-    pub fn render(&self, camera: Camera) {
-        let mut buffer = ImageBuffer::new(self.config.width, self.config.height);
-        let n = self.config.width as u64 * self.config.height as u64;
-        let bar = ProgressBar::new(n);
-        bar.set_draw_rate(10);
-        for (x, y, pixel) in buffer.enumerate_pixels_mut() {
-            *pixel = self
-                .get_pixel_color(&camera, x, y)
-                .convert(self.config.gamma_correction);
-            bar.inc(1);
-        }
-        buffer.save(&self.config.output_path).unwrap();
-        bar.finish();
-        println!("Took: {}", HumanDuration(bar.elapsed()).to_string());
     }
 }

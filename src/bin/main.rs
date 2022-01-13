@@ -4,7 +4,7 @@ use raytracer::scene::Scene;
 use raytracer::shapes::shape::*;
 use raytracer::shapes::sphere::Sphere;
 use raytracer::utils::{Color, Vec3};
-use raytracer::Config;
+use raytracer::{Config, render};
 
 fn main() {
     // Config for the output image
@@ -50,10 +50,10 @@ fn main() {
 
     scene.add_shape(
         ShapeBuilder::new(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5)))
-            .set_material(Box::new(Dielectric::new(Color::new(255, 200, 200), 1.5)))
+            .set_material(Box::new(Dielectric::new(Color::new(255, 255, 255), 1.5)))
             .to_shape(),
     );
 
     // Render the scene
-    scene.render(camera);
+    render(scene, camera);
 }

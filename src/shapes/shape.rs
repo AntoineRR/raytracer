@@ -45,13 +45,13 @@ impl HitRecord {
 pub struct ShapeBuilder {
     position: Vec3,
     rotation: Vec3,
-    object: Box<dyn Collide>,
-    material: Box<dyn Material>,
+    object: Box<dyn Collide + Send + Sync>,
+    material: Box<dyn Material + Send + Sync>,
 }
 
 impl ShapeBuilder {
     /// Creates a new ShapeBuilder
-    pub fn new(object: Box<dyn Collide>) -> Self {
+    pub fn new(object: Box<dyn Collide + Send + Sync>) -> Self {
         ShapeBuilder {
             position: Vec3::new(0.0, 0.0, 0.0),
             rotation: Vec3::new(0.0, 0.0, 0.0),
@@ -73,7 +73,7 @@ impl ShapeBuilder {
     }
 
     /// Set the material of the ShapeBuilder
-    pub fn set_material(mut self, material: Box<dyn Material>) -> Self {
+    pub fn set_material(mut self, material: Box<dyn Material + Send + Sync>) -> Self {
         self.material = material;
         self
     }
@@ -94,8 +94,8 @@ impl ShapeBuilder {
 pub struct Shape {
     position: Vec3,
     rotation: Vec3,
-    pub object: Box<dyn Collide>,
-    pub material: Box<dyn Material>,
+    pub object: Box<dyn Collide + Send + Sync>,
+    pub material: Box<dyn Material + Send + Sync>,
 }
 
 impl Shape {
@@ -103,8 +103,8 @@ impl Shape {
     pub fn new(
         position: Vec3,
         rotation: Vec3,
-        object: Box<dyn Collide>,
-        material: Box<dyn Material>,
+        object: Box<dyn Collide + Send + Sync>,
+        material: Box<dyn Material + Send + Sync>,
     ) -> Self {
         Shape {
             position,
