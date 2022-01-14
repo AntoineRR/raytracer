@@ -24,19 +24,27 @@ type ArcCollide = Arc<dyn Collide + Send + Sync>;
 /// ```
 pub struct SceneBuilder {
     config: Config,
+    skybox_color: Color,
     shapes: Vec<ArcCollide>,
 }
 
 impl SceneBuilder {
-    /// Creates a new SceneBuilder
+    /// Creates a new SceneBuilder.
     pub fn new(config: Config) -> Self {
         SceneBuilder {
             config,
+            skybox_color: Color::new(255, 255, 255),
             shapes: vec![],
         }
     }
 
-    /// Adds the shape to the SceneBuilder
+    /// Sets the skybox color of the scene.
+    pub fn set_skybox_color(mut self, skybox_color: Color) -> Self {
+        self.skybox_color = skybox_color;
+        self
+    }
+
+    /// Adds the shape to the SceneBuilder.
     pub fn add_shape<T>(&mut self, shape: T)
     where
         T: Collide + Send + Sync + 'static,
@@ -44,12 +52,13 @@ impl SceneBuilder {
         self.shapes.push(Arc::new(shape));
     }
 
-    /// Computes the Bounding Volume Hierarchy (BVH) for the current SceneBuilder and use it to create a Scene that can be rendered
+    /// Computes the Bounding Volume Hierarchy (BVH) for the current SceneBuilder and use it to create a Scene that can be rendered.
     pub fn to_scene(mut self) -> Scene {
         let n = self.shapes.len();
         let bvh = BVH::new(&mut self.shapes, 0, n);
         Scene {
             config: self.config,
+            skybox_color: self.skybox_color,
             bvh,
         }
     }
@@ -59,6 +68,7 @@ impl SceneBuilder {
 /// Create it using the SceneBuilder struct.
 pub struct Scene {
     config: Config,
+    skybox_color: Color,
     bvh: BVH,
 }
 
@@ -88,41 +98,38 @@ impl Scene {
 
         // If we found a shape intersecting with the ray render the shape
         if let Some(hit) = min_hit_record {
-            let bouncing_ray = hit.material.scatter(ray, &hit);
-            hit.material.get_attenuation() * self.get_ray_color(camera, &bouncing_ray, depth - 1)
+            let emited = hit.material.emit();
+            if let Some(bouncing_ray) = hit.material.scatter(ray, &hit) {
+                return hit.material.get_attenuation() * self.get_ray_color(camera, &bouncing_ray, depth - 1);
+            } else {
+                return emited;
+            }
         // Else we render the skybox
         } else {
-            let t = 0.5 * (ray.direction.y + 1.0);
-            Color::new(255, 255, 255) * (1.0 - t) + Color::new(128, 178, 255) * t
+            self.skybox_color
         }
     }
 
     /// Returns the computed color for the pixel at position (x,y) through the Camera.
     pub fn get_pixel_color(&self, camera: &Camera, x: u32, y: u32) -> Color {
         if self.config.anti_aliasing.is_none() {
-            let u = x as f32 / (self.config.width as f32 - 1.0);
-            let v = (self.config.height as f32 - y as f32) / (self.config.height as f32); // y axis goes up
+            let u = x as f64 / (self.config.width as f64 - 1.0);
+            let v = (self.config.height as f64 - y as f64) / (self.config.height as f64); // y axis goes up
             return self.get_ray_color(&camera, &camera.get_ray(u, v), self.config.max_ray_bounce);
         }
         let n_samples_root = self.config.anti_aliasing.unwrap();
-        let mut color_sum = (0, 0, 0);
+        let mut color_sum = Color::new(0, 0, 0);
         for offset_u in 0..n_samples_root {
             for offset_v in 0..n_samples_root {
-                let x = x as f32 + offset_u as f32 / (n_samples_root - 1) as f32;
-                let y = y as f32 + offset_v as f32 / (n_samples_root - 1) as f32;
-                let u = x as f32 / (self.config.width as f32 - 1.0);
-                let v = (self.config.height as f32 - y) / (self.config.height as f32); // y axis goes up
+                let x = x as f64 + offset_u as f64 / (n_samples_root - 1) as f64;
+                let y = y as f64 + offset_v as f64 / (n_samples_root - 1) as f64;
+                let u = x as f64 / (self.config.width as f64 - 1.0);
+                let v = (self.config.height as f64 - y) / (self.config.height as f64); // y axis goes up
                 let ray = camera.get_ray(u, v);
                 let color = self.get_ray_color(&camera, &ray, self.config.max_ray_bounce);
-                color_sum.0 += color.r as u32;
-                color_sum.1 += color.g as u32;
-                color_sum.2 += color.b as u32;
+                color_sum += color;
             }
         }
-        Color::new(
-            (color_sum.0 / (n_samples_root * n_samples_root)) as u8,
-            (color_sum.1 / (n_samples_root * n_samples_root)) as u8,
-            (color_sum.2 / (n_samples_root * n_samples_root)) as u8,
-        )
+        color_sum / (n_samples_root*n_samples_root) as f64
     }
 }

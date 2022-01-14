@@ -1,12 +1,10 @@
 use std::ops::{self, Index, IndexMut};
 
-use rand::Rng;
-
 #[derive(Clone, Copy, Debug)]
 pub struct Vec3 {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
 }
 
 impl ops::Neg for Vec3 {
@@ -65,10 +63,10 @@ impl ops::SubAssign for Vec3 {
     }
 }
 
-impl ops::Div<f32> for Vec3 {
+impl ops::Div<f64> for Vec3 {
     type Output = Self;
 
-    fn div(self, rhs: f32) -> Self {
+    fn div(self, rhs: f64) -> Self {
         Self {
             x: self.x / rhs,
             y: self.y / rhs,
@@ -77,8 +75,8 @@ impl ops::Div<f32> for Vec3 {
     }
 }
 
-impl ops::DivAssign<f32> for Vec3 {
-    fn div_assign(&mut self, rhs: f32) {
+impl ops::DivAssign<f64> for Vec3 {
+    fn div_assign(&mut self, rhs: f64) {
         *self = Self {
             x: self.x / rhs,
             y: self.y / rhs,
@@ -109,10 +107,10 @@ impl ops::MulAssign<Vec3> for Vec3 {
     }
 }
 
-impl ops::Mul<f32> for Vec3 {
+impl ops::Mul<f64> for Vec3 {
     type Output = Self;
 
-    fn mul(self, rhs: f32) -> Self {
+    fn mul(self, rhs: f64) -> Self {
         Self {
             x: self.x * rhs,
             y: self.y * rhs,
@@ -121,8 +119,8 @@ impl ops::Mul<f32> for Vec3 {
     }
 }
 
-impl ops::MulAssign<f32> for Vec3 {
-    fn mul_assign(&mut self, rhs: f32) {
+impl ops::MulAssign<f64> for Vec3 {
+    fn mul_assign(&mut self, rhs: f64) {
         *self = Self {
             x: self.x * rhs,
             y: self.y * rhs,
@@ -132,7 +130,7 @@ impl ops::MulAssign<f32> for Vec3 {
 }
 
 impl Index<usize> for Vec3 {
-    type Output = f32;
+    type Output = f64;
 
     fn index(&self, index: usize) -> &Self::Output {
         match index {
@@ -156,15 +154,15 @@ impl IndexMut<usize> for Vec3 {
 }
 
 impl Vec3 {
-    pub fn new(x: f32, y: f32, z: f32) -> Self {
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
         Vec3 { x, y, z }
     }
 
-    pub fn len_squared(&self) -> f32 {
+    pub fn len_squared(&self) -> f64 {
         self.x * self.x + self.y * self.y + self.z * self.z
     }
 
-    pub fn len(&self) -> f32 {
+    pub fn len(&self) -> f64 {
         self.len_squared().sqrt()
     }
 
@@ -206,9 +204,9 @@ impl Base {
 
 #[derive(Clone, Copy, Debug)]
 pub struct Color {
-    pub r: u8,
-    pub g: u8,
-    pub b: u8,
+    pub r: f64,
+    pub g: f64,
+    pub b: f64,
 }
 
 impl ops::Add for Color {
@@ -233,24 +231,24 @@ impl ops::AddAssign for Color {
     }
 }
 
-impl ops::Mul<f32> for Color {
+impl ops::Mul<f64> for Color {
     type Output = Self;
 
-    fn mul(self, rhs: f32) -> Self {
+    fn mul(self, rhs: f64) -> Self {
         Self {
-            r: (self.r as f32 * rhs) as u8,
-            g: (self.g as f32 * rhs) as u8,
-            b: (self.b as f32 * rhs) as u8,
+            r: self.r * rhs,
+            g: self.g * rhs,
+            b: self.b * rhs,
         }
     }
 }
 
-impl ops::MulAssign<f32> for Color {
-    fn mul_assign(&mut self, rhs: f32) {
+impl ops::MulAssign<f64> for Color {
+    fn mul_assign(&mut self, rhs: f64) {
         *self = Self {
-            r: (self.r as f32 * rhs) as u8,
-            g: (self.g as f32 * rhs) as u8,
-            b: (self.b as f32 * rhs) as u8,
+            r: self.r * rhs,
+            g: self.g * rhs,
+            b: self.b * rhs,
         }
     }
 }
@@ -260,9 +258,9 @@ impl ops::Mul for Color {
 
     fn mul(self, rhs: Color) -> Self {
         Self {
-            r: (self.r as f32 * (rhs.r as f32 / 255.0)) as u8,
-            g: (self.g as f32 * (rhs.g as f32 / 255.0)) as u8,
-            b: (self.b as f32 * (rhs.b as f32 / 255.0)) as u8,
+            r: self.r * rhs.r,
+            g: self.g * rhs.g,
+            b: self.b * rhs.b,
         }
     }
 }
@@ -270,37 +268,63 @@ impl ops::Mul for Color {
 impl ops::MulAssign for Color {
     fn mul_assign(&mut self, rhs: Self) {
         *self = Self {
-            r: (self.r as f32 * (rhs.r as f32 / 255.0)) as u8,
-            g: (self.g as f32 * (rhs.g as f32 / 255.0)) as u8,
-            b: (self.b as f32 * (rhs.b as f32 / 255.0)) as u8,
+            r: self.r * rhs.r,
+            g: self.g * rhs.g,
+            b: self.b * rhs.b,
+        }
+    }
+}
+
+impl ops::Div<f64> for Color {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self {
+        Self {
+            r: self.r / rhs,
+            g: self.g / rhs,
+            b: self.b / rhs,
+        }
+    }
+}
+
+impl ops::DivAssign<f64> for Color {
+    fn div_assign(&mut self, rhs: f64) {
+        *self = Self {
+            r: self.r / rhs,
+            g: self.g / rhs,
+            b: self.b / rhs,
         }
     }
 }
 
 impl Color {
     pub fn new(r: u8, g: u8, b: u8) -> Self {
-        Color { r, g, b }
+        Color {
+            r: r as f64 / 255.0,
+            g: g as f64 / 255.0,
+            b: b as f64 / 255.0,
+        }
     }
 
     pub fn random() -> Self {
         Color {
-            r: rand::thread_rng().gen_range(0..=255),
-            g: rand::thread_rng().gen_range(0..=255),
-            b: rand::thread_rng().gen_range(0..=255),
+            r: rand::random(),
+            g: rand::random(),
+            b: rand::random(),
         }
     }
 
-    pub fn convert(&self, gamma_correction: f32) -> image::Rgb<u8> {
+    pub fn convert(&self, gamma_correction: f64) -> image::Rgb<u8> {
         image::Rgb([
-            (self.r as f32).powf(1.0 / gamma_correction) as u8,
-            (self.g as f32).powf(1.0 / gamma_correction) as u8,
-            (self.b as f32).powf(1.0 / gamma_correction) as u8,
+            (self.r.min(1.0) * 255.0).powf(1.0 / gamma_correction) as u8,
+            (self.g.min(1.0) * 255.0).powf(1.0 / gamma_correction) as u8,
+            (self.b.min(1.0) * 255.0).powf(1.0 / gamma_correction) as u8,
         ])
     }
 }
 
 /// Returns the dot product between two Vec3.
-pub fn dot(a: &Vec3, b: &Vec3) -> f32 {
+pub fn dot(a: &Vec3, b: &Vec3) -> f64 {
     a.x * b.x + a.y * b.y + a.z * b.z
 }
 

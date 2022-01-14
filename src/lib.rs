@@ -38,7 +38,7 @@ pub struct Config {
     pub output_path: String,
     pub anti_aliasing: Option<u32>,
     pub max_ray_bounce: u32,
-    pub gamma_correction: f32,
+    pub gamma_correction: f64,
 }
 
 /// Renders the Scene scene from the Camera camera.

@@ -9,7 +9,10 @@ use crate::{
 
 pub trait Material {
     /// Returns a ray that was scattered byt the material, based on the incident ray and the informations about the hit with the object.
-    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Ray;
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<Ray>;
+
+    /// Returns the color emitted by the Material
+    fn emit(&self) -> Color { Color::new(0, 0,0 ) }
 
     /// Returns the attenuation that the scattered ray went through. This is the albedo color of the material.
     fn get_attenuation(&self) -> Color;
@@ -21,10 +24,10 @@ pub struct Diffuse {
 }
 
 impl Material for Diffuse {
-    fn scatter(&self, _: &Ray, hit_record: &HitRecord) -> Ray {
-        let r: [f32; 3] = UnitSphere.sample(&mut rand::thread_rng());
+    fn scatter(&self, _: &Ray, hit_record: &HitRecord) -> Option<Ray> {
+        let r: [f64; 3] = UnitSphere.sample(&mut rand::thread_rng());
         let target = hit_record.point + hit_record.normal + Vec3::new(r[0], r[1], r[2]);
-        Ray::new(hit_record.point, target - hit_record.point)
+        Some(Ray::new(hit_record.point, target - hit_record.point))
     }
 
     fn get_attenuation(&self) -> Color {
@@ -42,16 +45,16 @@ impl Diffuse {
 /// A pure reflective Material.
 pub struct Metal {
     color: Color,
-    fuzziness: f32,
+    fuzziness: f64,
 }
 
 impl Material for Metal {
-    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Ray {
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<Ray> {
         let mut target =
             ray.direction - hit_record.normal * 2.0 * dot(&ray.direction, &hit_record.normal);
         let r = UnitSphere.sample(&mut rand::thread_rng());
         target += Vec3::new(r[0], r[1], r[2]) * self.fuzziness;
-        Ray::new(hit_record.point, target)
+        Some(Ray::new(hit_record.point, target))
     }
 
     fn get_attenuation(&self) -> Color {
@@ -61,7 +64,7 @@ impl Material for Metal {
 
 impl Metal {
     /// Creates a new metal material.
-    pub fn new(color: Color, fuzziness: f32) -> Self {
+    pub fn new(color: Color, fuzziness: f64) -> Self {
         Metal { color, fuzziness }
     }
 }
@@ -69,11 +72,11 @@ impl Metal {
 /// A pure glass Material.
 pub struct Dielectric {
     color: Color,
-    refraction: f32,
+    refraction: f64,
 }
 
 impl Material for Dielectric {
-    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Ray {
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<Ray> {
         let refraction_ratio = if hit_record.front_face {
             1.0 / self.refraction
         } else {
@@ -93,7 +96,7 @@ impl Material for Dielectric {
             r_par + r_perp
         };
 
-        Ray::new(hit_record.point, target)
+        Some(Ray::new(hit_record.point, target))
     }
 
     fn get_attenuation(&self) -> Color {
@@ -103,13 +106,38 @@ impl Material for Dielectric {
 
 impl Dielectric {
     /// Creates a new dielectric material.
-    pub fn new(color: Color, refraction: f32) -> Self {
+    pub fn new(color: Color, refraction: f64) -> Self {
         Dielectric { color, refraction }
     }
 
-    fn reflectance(&self, cos_theta: f32, refraction_ratio: f32) -> f32 {
+    fn reflectance(&self, cos_theta: f64, refraction_ratio: f64) -> f64 {
         let mut r0 = (1.0 - refraction_ratio) / (1.0 + refraction_ratio);
         r0 = r0 * r0;
         r0 + (1.0 - r0) * (1.0 - cos_theta).pow(5)
+    }
+}
+
+pub struct DiffuseLight {
+    color: Color,
+    intensity: f64,
+}
+
+impl Material for DiffuseLight {
+    fn scatter(&self, _: &Ray, _: &HitRecord) -> Option<Ray> {
+        None
+    }
+
+    fn emit(&self) -> Color {
+        self.color * self.intensity
+    }
+
+    fn get_attenuation(&self) -> Color {
+        Color::new(255, 255, 255)
+    }
+}
+
+impl DiffuseLight {
+    pub fn new(color: Color, intensity: f64) -> Self {
+        DiffuseLight { color, intensity }
     }
 }

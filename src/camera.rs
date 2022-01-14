@@ -4,9 +4,9 @@ use crate::ray::Ray;
 use crate::utils::{cross, Base, Vec3};
 
 struct Viewport {
-    width: f32,
-    height: f32,
-    aspect_ratio: f32,
+    width: f64,
+    height: f64,
+    aspect_ratio: f64,
     lower_left_corner: Vec3,
 }
 
@@ -14,7 +14,7 @@ struct Viewport {
 ///
 /// # Example
 /// ```
-/// let aspect_ratio = config.width as f32 / config.height as f32;
+/// let aspect_ratio = config.width as f64 / config.height as f64;
 ///
 /// let camera = Camera::new(
 ///     Vec3::new(-2.0, 2.0, 1.0),
@@ -27,10 +27,10 @@ struct Viewport {
 pub struct Camera {
     position: Vec3,
     base: Base,
-    focus: f32,
-    len_radius: f32,
-    near_clip_plane: f32,
-    far_clip_plane: f32,
+    focus: f64,
+    len_radius: f64,
+    near_clip_plane: f64,
+    far_clip_plane: f64,
     viewport: Viewport,
 }
 
@@ -39,7 +39,7 @@ impl Camera {
     ///
     /// The direction and view_up parameter will determine the rotation of the camera.
     /// The aspect_ratio should be the same as the aspect ratio used for the Config struct
-    pub fn new(position: Vec3, direction: Vec3, view_up: Vec3, aspect_ratio: f32) -> Self {
+    pub fn new(position: Vec3, direction: Vec3, view_up: Vec3, aspect_ratio: f64) -> Self {
         let w = -direction.normalize();
         let u = cross(&view_up, &w).normalize();
         let v = cross(&w, &u);
@@ -67,7 +67,7 @@ impl Camera {
     }
 
     /// Returns the focus distance of the Camera
-    pub fn get_focus(&self) -> f32 {
+    pub fn get_focus(&self) -> f64 {
         self.focus
     }
 
@@ -75,7 +75,7 @@ impl Camera {
     ///
     /// # Panics
     /// Panics if the new focus distance is not between the near clip plane and far clip plane value of the Camera.
-    pub fn set_focus(mut self, focus: f32) -> Self {
+    pub fn set_focus(mut self, focus: f64) -> Self {
         if self.focus < self.near_clip_plane || self.focus > self.far_clip_plane {
             panic!("Tried to set a focus distance that is outside of the camera frustum");
         }
@@ -85,7 +85,7 @@ impl Camera {
     }
 
     /// Returns the len radius of the Camera
-    pub fn get_len_radius(&self) -> f32 {
+    pub fn get_len_radius(&self) -> f64 {
         self.len_radius
     }
 
@@ -94,7 +94,7 @@ impl Camera {
     ///
     /// # Panics
     /// Panics if a negative value is given for the len radius.
-    pub fn set_len_radius(mut self, len_radius: f32) -> Self {
+    pub fn set_len_radius(mut self, len_radius: f64) -> Self {
         if self.len_radius < 0.0 {
             panic!("Tried to set a negative len radius for the Camera");
         }
@@ -103,7 +103,7 @@ impl Camera {
     }
 
     /// Returns the the near clip plane value of the Camera
-    pub fn get_near_clip_plane(&self) -> f32 {
+    pub fn get_near_clip_plane(&self) -> f64 {
         self.near_clip_plane
     }
 
@@ -111,7 +111,7 @@ impl Camera {
     ///
     /// # Panics
     /// Panics if the new near clip plane value is greater than the focus distance of the Camera
-    pub fn set_near_clip_plane(mut self, near_clip_plane: f32) -> Self {
+    pub fn set_near_clip_plane(mut self, near_clip_plane: f64) -> Self {
         if near_clip_plane > self.focus {
             panic!("Tried to set the near clip plane to a value greater than the focus distance of the Camera");
         }
@@ -120,7 +120,7 @@ impl Camera {
     }
 
     /// Returns the far clip plane value of the Camera
-    pub fn get_far_clip_plane(&self) -> f32 {
+    pub fn get_far_clip_plane(&self) -> f64 {
         self.far_clip_plane
     }
 
@@ -128,7 +128,7 @@ impl Camera {
     ///
     /// # Panics
     /// Panics if the new far clip plane value is smaller than the focus distance of the Camera
-    pub fn set_far_clip_plane(mut self, far_clip_plane: f32) -> Self {
+    pub fn set_far_clip_plane(mut self, far_clip_plane: f64) -> Self {
         if far_clip_plane < self.focus {
             panic!("Tried to set the far clip plane to a value smaller than the focus distance of the Camera");
         }
@@ -137,7 +137,7 @@ impl Camera {
     }
 
     /// Set a new vertical field of view for the Camera
-    pub fn set_vertical_fov(mut self, v_fov: f32) -> Self {
+    pub fn set_vertical_fov(mut self, v_fov: f64) -> Self {
         let h = (v_fov.to_radians() / 2.0).tan();
         self.viewport.height = 2.0 * h;
         self.viewport.width = self.viewport.aspect_ratio * self.viewport.height;
@@ -145,8 +145,8 @@ impl Camera {
         self
     }
 
-    pub fn get_ray(&self, u: f32, v: f32) -> Ray {
-        let r: [f32; 2] = UnitDisc.sample(&mut rand::thread_rng());
+    pub fn get_ray(&self, u: f64, v: f64) -> Ray {
+        let r: [f64; 2] = UnitDisc.sample(&mut rand::thread_rng());
         let offset = (self.base.u() * r[0] + self.base.v() * r[1]) * self.len_radius;
         let origin = self.position + offset;
         let direction = (self.viewport.lower_left_corner

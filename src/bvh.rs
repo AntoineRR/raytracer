@@ -21,7 +21,7 @@ impl AABB {
     }
 
     /// Returns if the AABB was hit
-    pub fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> bool {
+    pub fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> bool {
         let (mut min, mut max) = (t_min, t_max);
         for i in 0..3 {
             let (t0, t1) = get_interval(self.min[i], self.max[i], ray.origin[i], ray.direction[i]);
@@ -48,9 +48,9 @@ impl AABB {
     }
 }
 
-fn get_interval(min: f32, max: f32, origin: f32, direction: f32) -> (f32, f32) {
+fn get_interval(min: f64, max: f64, origin: f64, direction: f64) -> (f64, f64) {
     if direction == 0.0 {
-        return (f32::INFINITY, f32::INFINITY);
+        return (f64::INFINITY, f64::INFINITY);
     }
     let t0 = (min - origin) / direction;
     let t1 = (max - origin) / direction;
@@ -104,7 +104,7 @@ pub struct BVH {
 }
 
 impl Collide for BVH {
-    fn get_intersection(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+    fn get_intersection(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         if !self.aabb.hit(ray, t_min, t_max) {
             return None;
         }
