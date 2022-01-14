@@ -1,2 +1,2 @@
-pub mod shape;
+pub mod collide;
 pub mod sphere;

@@ -1,10 +1,11 @@
-use std::sync::{Mutex, Arc};
+use std::sync::{Arc, Mutex};
 
 use camera::Camera;
 use image::ImageBuffer;
-use indicatif::{ProgressBar, HumanDuration};
+use indicatif::{HumanDuration, ProgressBar};
 use scene::Scene;
 
+mod bvh;
 pub mod camera;
 pub mod material;
 mod ray;
@@ -40,13 +41,17 @@ pub struct Config {
     pub gamma_correction: f32,
 }
 
+/// Renders the Scene scene from the Camera camera.
+/// Will display a progress bar to keep track of the rendering process
+/// The resulting render will be saved in an image whose path is defined in the config object of the Scene.
 pub fn render(scene: Scene, camera: Camera) {
     println!("Rendering scene...");
     let bar = ProgressBar::new(scene.get_config().width as u64 * scene.get_config().height as u64);
     let bar = Arc::new(bar);
     bar.set_draw_rate(10);
 
-    let buffer: ImageBuffer<image::Rgb<u8>, _> = ImageBuffer::new(scene.get_config().width, scene.get_config().height);
+    let buffer: ImageBuffer<image::Rgb<u8>, _> =
+        ImageBuffer::new(scene.get_config().width, scene.get_config().height);
     let buffer = Arc::new(Mutex::new(buffer));
     let thread_pool = threadpool::ThreadPool::new(100);
 
@@ -63,7 +68,7 @@ pub fn render(scene: Scene, camera: Camera) {
             let buffer_clone = buffer.clone();
             let scene_clone = scene.clone();
             let bar_clone = bar.clone();
-            
+
             thread_pool.execute(move || {
                 let color = scene_clone
                     .get_pixel_color(&camera_clone, x as u32, y as u32)
@@ -79,6 +84,10 @@ pub fn render(scene: Scene, camera: Camera) {
     println!("Took: {}", HumanDuration(bar.elapsed()).to_string());
 
     println!("Saving image...");
-    buffer.lock().unwrap().save(&scene.get_config().output_path).unwrap();
+    buffer
+        .lock()
+        .unwrap()
+        .save(&scene.get_config().output_path)
+        .unwrap();
     println!("Done");
 }

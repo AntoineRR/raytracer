@@ -3,13 +3,13 @@ use rand_distr::{num_traits::Pow, Distribution, UnitSphere};
 
 use crate::{
     ray::Ray,
-    shapes::shape::HitRecord,
+    shapes::collide::HitRecord,
     utils::{dot, Color, Vec3},
 };
 
 pub trait Material {
     /// Returns a ray that was scattered byt the material, based on the incident ray and the informations about the hit with the object.
-    fn scatter(&self, ray: &Ray, hit_record: HitRecord) -> Ray;
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Ray;
 
     /// Returns the attenuation that the scattered ray went through. This is the albedo color of the material.
     fn get_attenuation(&self) -> Color;
@@ -21,7 +21,7 @@ pub struct Diffuse {
 }
 
 impl Material for Diffuse {
-    fn scatter(&self, _: &Ray, hit_record: HitRecord) -> Ray {
+    fn scatter(&self, _: &Ray, hit_record: &HitRecord) -> Ray {
         let r: [f32; 3] = UnitSphere.sample(&mut rand::thread_rng());
         let target = hit_record.point + hit_record.normal + Vec3::new(r[0], r[1], r[2]);
         Ray::new(hit_record.point, target - hit_record.point)
@@ -46,7 +46,7 @@ pub struct Metal {
 }
 
 impl Material for Metal {
-    fn scatter(&self, ray: &Ray, hit_record: HitRecord) -> Ray {
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Ray {
         let mut target =
             ray.direction - hit_record.normal * 2.0 * dot(&ray.direction, &hit_record.normal);
         let r = UnitSphere.sample(&mut rand::thread_rng());
@@ -73,7 +73,7 @@ pub struct Dielectric {
 }
 
 impl Material for Dielectric {
-    fn scatter(&self, ray: &Ray, hit_record: HitRecord) -> Ray {
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Ray {
         let refraction_ratio = if hit_record.front_face {
             1.0 / self.refraction
         } else {

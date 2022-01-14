@@ -4,10 +4,11 @@ This project is a simple ray tracing project written in Rust, based on the [Ray 
 
 ## Features
 
-* Multithreaded rendering of spheres
+* Rendering of spheres
 * 3 different materials : Diffuse, Metal, and Dielectric
 * Setting up the Camera where you want in the Scene and render a Scene from different Cameras
 * Configuration of the rendering through the `Config` struct
+* Optimizations: Multithreading and Bounding Volume Hierarchy (BVH)
 
 ## How to use
 
