@@ -12,7 +12,9 @@ pub trait Material {
     fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<Ray>;
 
     /// Returns the color emitted by the Material
-    fn emit(&self) -> Color { Color::new(0, 0,0 ) }
+    fn emit(&self) -> Color {
+        Color::new(0, 0, 0)
+    }
 
     /// Returns the attenuation that the scattered ray went through. This is the albedo color of the material.
     fn get_attenuation(&self) -> Color;
@@ -103,7 +105,11 @@ impl DiffuseMetal {
         if diffuse_part < 0.0 || diffuse_part > 1.0 {
             panic!("The diffuse_part parameter should be between 0.0 and 1.0 as it represents the part of light that is diffused.")
         }
-        DiffuseMetal { color, fuzziness, diffuse_part }
+        DiffuseMetal {
+            color,
+            fuzziness,
+            diffuse_part,
+        }
     }
 }
 

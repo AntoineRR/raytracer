@@ -91,7 +91,7 @@ type ArcCollide = Arc<dyn Collide + Send + Sync>;
 pub fn get_bounding_box<T>(objects: &[Arc<T>]) -> AABB
 where
     T: ?Sized,
-    T: Collide + Send + Sync
+    T: Collide + Send + Sync,
 {
     if objects.len() < 1 {
         panic!("Please provide a vector with at least one element");

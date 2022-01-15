@@ -1,7 +1,7 @@
 use raytracer::camera::Camera;
-use raytracer::material::{Dielectric, Diffuse, Metal, DiffuseLight, DiffuseMetal};
-use raytracer::mesh::STLMesh;
+use raytracer::material::{Dielectric, Diffuse, DiffuseLight, DiffuseMetal, Metal};
 use raytracer::scene::{Scene, SceneBuilder};
+use raytracer::shapes::mesh::STLMesh;
 use raytracer::shapes::sphere::Sphere;
 use raytracer::utils::{Color, Vec3};
 use raytracer::{render, Config};
@@ -73,7 +73,7 @@ fn get_random_scene(config: Config) -> Scene {
 
 #[allow(dead_code)]
 fn get_light_scene(config: Config) -> Scene {
-    let mut scene = SceneBuilder::new(config).set_skybox_color(Color::new(20, 20,20));
+    let mut scene = SceneBuilder::new(config).set_skybox_color(Color::new(20, 20, 20));
 
     // Ground
     scene.add_shape(
@@ -119,9 +119,10 @@ fn get_teapot_scene(config: Config) -> Scene {
     );
 
     // Add the teapot
-    scene.add_shape(
-        STLMesh::new("models/utah_teapot.stl", DiffuseMetal::new(Color::new(180, 180, 180), 0.0, 0.9)),
-    );
+    scene.add_shape(STLMesh::new(
+        "models/utah_teapot.stl",
+        DiffuseMetal::new(Color::new(180, 180, 180), 0.0, 0.9),
+    ));
 
     // Add light
     scene.add_shape(
@@ -143,7 +144,7 @@ fn main() {
         width: 640,
         height: 400,
         output_path: String::from("images/test.png"),
-        anti_aliasing: Some(50),
+        anti_aliasing: Some(10),
         max_ray_bounce: 20,
         gamma_correction: 1.0,
     };

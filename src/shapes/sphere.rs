@@ -11,7 +11,7 @@ use crate::utils::{dot, Vec3};
 
 type ArcMaterial = Arc<dyn Material + Send + Sync>;
 
-/// A simple Sphere to wrap in the Shape struct for rendering in a Scene.
+/// A simple Sphere to render in a Scene.
 pub struct Sphere {
     center: Vec3,
     radius: f64,

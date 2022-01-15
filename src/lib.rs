@@ -11,8 +11,6 @@ pub mod material;
 mod ray;
 pub mod scene;
 pub mod shapes;
-pub mod triangle;
-pub mod mesh;
 pub mod utils;
 
 /// Configuration of the output image

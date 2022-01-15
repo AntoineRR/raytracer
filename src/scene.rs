@@ -100,7 +100,8 @@ impl Scene {
         if let Some(hit) = min_hit_record {
             let emited = hit.material.emit();
             if let Some(bouncing_ray) = hit.material.scatter(ray, &hit) {
-                return hit.material.get_attenuation() * self.get_ray_color(camera, &bouncing_ray, depth - 1);
+                return hit.material.get_attenuation()
+                    * self.get_ray_color(camera, &bouncing_ray, depth - 1);
             } else {
                 return emited;
             }
@@ -130,6 +131,6 @@ impl Scene {
                 color_sum += color;
             }
         }
-        color_sum / (n_samples_root*n_samples_root) as f64
+        color_sum / (n_samples_root * n_samples_root) as f64
     }
 }

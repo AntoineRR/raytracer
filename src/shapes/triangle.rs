@@ -1,9 +1,17 @@
 use std::sync::Arc;
 
-use crate::{utils::{Vec3, Color, dot, cross}, material::{Material, Diffuse}, shapes::collide::{Collide, HitRecord}, bvh::AABB, ray::Ray};
+use crate::{
+    bvh::AABB,
+    material::{Diffuse, Material},
+    ray::Ray,
+    shapes::collide::{Collide, HitRecord},
+    utils::{cross, dot, Color, Vec3},
+};
 
 type ArcMaterial = Arc<dyn Material + Send + Sync>;
 
+/// Represents a simple Triangle.
+/// It is used with the STLMesh struct to represent a multi triangles object.
 pub struct Triangle {
     vertices: [Vec3; 3],
     normal: Vec3,
@@ -25,35 +33,60 @@ impl Collide for Triangle {
         let inv_det = 1.0 / det;
         let t_vec = ray.origin - self.vertices[0];
         let u = dot(&t_vec, &p_vec) * inv_det;
-        if u < 0.0 || u > 1.0 { return None; }
+        if u < 0.0 || u > 1.0 {
+            return None;
+        }
 
         let q_vec = cross(&t_vec, &v0v1);
         let v = dot(&ray.direction, &q_vec) * inv_det;
-        if v < 0.0 || u + v > 1.0 { return None; }
+        if v < 0.0 || u + v > 1.0 {
+            return None;
+        }
 
         let t = dot(&v0v2, &q_vec) * inv_det;
-        if t < t_min || t > t_max { return None; }
+        if t < t_min || t > t_max {
+            return None;
+        }
         let p = ray.origin + ray.direction * t;
 
-        Some(HitRecord::new(p, self.normal, t, true, self.material.clone()))
+        Some(HitRecord::new(
+            p,
+            self.normal,
+            t,
+            true,
+            self.material.clone(),
+        ))
     }
 
     fn get_bounding_box(&self) -> Option<AABB> {
         let min = Vec3::new(
-            self.vertices[0].x.min(self.vertices[1].x.min(self.vertices[2].x)),
-            self.vertices[0].y.min(self.vertices[1].y.min(self.vertices[2].y)),
-            self.vertices[0].z.min(self.vertices[1].z.min(self.vertices[2].z)),
+            self.vertices[0]
+                .x
+                .min(self.vertices[1].x.min(self.vertices[2].x)),
+            self.vertices[0]
+                .y
+                .min(self.vertices[1].y.min(self.vertices[2].y)),
+            self.vertices[0]
+                .z
+                .min(self.vertices[1].z.min(self.vertices[2].z)),
         );
         let max = Vec3::new(
-            self.vertices[0].x.max(self.vertices[1].x.max(self.vertices[2].x)),
-            self.vertices[0].y.max(self.vertices[1].y.max(self.vertices[2].y)),
-            self.vertices[0].z.max(self.vertices[1].z.max(self.vertices[2].z)),
+            self.vertices[0]
+                .x
+                .max(self.vertices[1].x.max(self.vertices[2].x)),
+            self.vertices[0]
+                .y
+                .max(self.vertices[1].y.max(self.vertices[2].y)),
+            self.vertices[0]
+                .z
+                .max(self.vertices[1].z.max(self.vertices[2].z)),
         );
         Some(AABB::new(min, max))
     }
 }
 
 impl Triangle {
+    /// Creates a new Triangle.
     pub fn new(vertices: [Vec3; 3], normal: Vec3) -> Self {
         Triangle {
             vertices,
@@ -62,6 +95,7 @@ impl Triangle {
         }
     }
 
+    /// Sets the material for a Triangle.
     pub fn set_material(&mut self, material: Arc<dyn Material + Send + Sync + 'static>) {
         self.material = material;
     }
