@@ -4,7 +4,7 @@ This project is a simple ray tracing project written in Rust, based on the [Ray 
 
 ## Features
 
-* Rendering of spheres
+* Rendering of spheres and 3D models (STL files)
 * 4 different materials : Diffuse, Metal, Dielectric, and DiffuseLight
 * Setting a color for the Skybox
 * Setting up the Camera where you want in the Scene and render a Scene from different Cameras
@@ -20,4 +20,5 @@ Check the `src/bin/main.rs` file for example scenes to render.
 
 ![Big scene](/examples/big_scene.png?raw=true "Big")
 ![Light](/examples/light.png?raw=true "Light")
+![Teapot](/examples/teapot.png?raw=true "Teapot")
 ![Close up](/examples/close_up.png?raw=true "Close")

@@ -17,6 +17,20 @@ pub struct AABB {
 impl AABB {
     /// Creates a new AABB
     pub fn new(min: Vec3, max: Vec3) -> Self {
+        let e = 0.000001;
+        let diff = max - min;
+        let mut min = min;
+        let mut max = max;
+        if diff.x < e {
+            min.x -= e;
+            max.x += e;
+        } else if diff.y < e {
+            min.y -= e;
+            max.y += e;
+        } else if diff.z < e {
+            min.z -= e;
+            max.z += e;
+        }
         AABB { min, max }
     }
 
@@ -58,7 +72,7 @@ fn get_interval(min: f64, max: f64, origin: f64, direction: f64) -> (f64, f64) {
     (t0, t1)
 }
 
-fn surrounding_box(a: AABB, b: AABB) -> AABB {
+pub fn surrounding_box(a: AABB, b: AABB) -> AABB {
     let lowest = Vec3::new(
         a.min.x.min(b.min.x),
         a.min.y.min(b.min.y),
@@ -74,7 +88,11 @@ fn surrounding_box(a: AABB, b: AABB) -> AABB {
 
 type ArcCollide = Arc<dyn Collide + Send + Sync>;
 
-fn get_bounding_box(objects: &[ArcCollide]) -> AABB {
+pub fn get_bounding_box<T>(objects: &[Arc<T>]) -> AABB
+where
+    T: ?Sized,
+    T: Collide + Send + Sync
+{
     if objects.len() < 1 {
         panic!("Please provide a vector with at least one element");
     }
