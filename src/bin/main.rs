@@ -1,5 +1,5 @@
 use raytracer::camera::Camera;
-use raytracer::material::{Dielectric, Diffuse, Metal, DiffuseLight};
+use raytracer::material::{Dielectric, Diffuse, Metal, DiffuseLight, DiffuseMetal};
 use raytracer::mesh::STLMesh;
 use raytracer::scene::{Scene, SceneBuilder};
 use raytracer::shapes::sphere::Sphere;
@@ -120,7 +120,7 @@ fn get_teapot_scene(config: Config) -> Scene {
 
     // Add the teapot
     scene.add_shape(
-        STLMesh::new("models/utah_teapot.stl", Diffuse::new(Color::new(180, 180, 180))),
+        STLMesh::new("models/utah_teapot.stl", DiffuseMetal::new(Color::new(180, 180, 180), 0.0, 0.9)),
     );
 
     // Add light

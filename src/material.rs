@@ -69,6 +69,44 @@ impl Metal {
     }
 }
 
+/// A mix of the Diffuse and Metal Materials
+pub struct DiffuseMetal {
+    color: Color,
+    fuzziness: f64,
+    diffuse_part: f64,
+}
+
+impl Material for DiffuseMetal {
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<Ray> {
+        let choose_reaction: f64 = rand::random();
+        if choose_reaction < self.diffuse_part {
+            let r: [f64; 3] = UnitSphere.sample(&mut rand::thread_rng());
+            let target = hit_record.point + hit_record.normal + Vec3::new(r[0], r[1], r[2]);
+            Some(Ray::new(hit_record.point, target - hit_record.point))
+        } else {
+            let mut target =
+                ray.direction - hit_record.normal * 2.0 * dot(&ray.direction, &hit_record.normal);
+            let r = UnitSphere.sample(&mut rand::thread_rng());
+            target += Vec3::new(r[0], r[1], r[2]) * self.fuzziness;
+            Some(Ray::new(hit_record.point, target))
+        }
+    }
+
+    fn get_attenuation(&self) -> Color {
+        self.color
+    }
+}
+
+impl DiffuseMetal {
+    /// Creates a new diffuse and metal Material.
+    pub fn new(color: Color, fuzziness: f64, diffuse_part: f64) -> Self {
+        if diffuse_part < 0.0 || diffuse_part > 1.0 {
+            panic!("The diffuse_part parameter should be between 0.0 and 1.0 as it represents the part of light that is diffused.")
+        }
+        DiffuseMetal { color, fuzziness, diffuse_part }
+    }
+}
+
 /// A pure glass Material.
 pub struct Dielectric {
     color: Color,
